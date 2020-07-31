@@ -1,8 +1,29 @@
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, ActivityIndicator} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
+import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import URL from '../api/URL';
 
 const RegisterScreen = ({navigation, route}) => {
+  // tạo state cho function
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+
+  const fetchData = async () => {
+    try {
+      let data = await axios.post('http://10.82.128.220:3000/signup', {
+        email: email,
+        password: pass,
+      });
+      await AsyncStorage.setItem('token', data.data.token);
+      navigation.navigate('HomeScreen');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View
@@ -27,22 +48,23 @@ const RegisterScreen = ({navigation, route}) => {
           style={{width: '100%', height: 50}}
           label="Email"
           mode="outlined"
-          // value={text}
-          // onChangeText={text => setText(text)}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
-        <TextInput
+        {/* <TextInput
           style={{width: '100%', height: 50, marginTop: 10}}
           label="Name"
           mode="outlined"
           // value={text}
           // onChangeText={text => setText(text)}
-        />
+        /> */}
         <TextInput
           style={{width: '100%', height: 50, marginTop: 10}}
           label="PassWord"
           mode="outlined"
-          // value={text}
-          // onChangeText={text => setText(text)}
+          secureTextEntry={true}
+          value={pass}
+          onChangeText={(text) => setPass(text)}
         />
         <View
           style={{
@@ -56,7 +78,7 @@ const RegisterScreen = ({navigation, route}) => {
             onPress={() => navigation.navigate('LoginScreen')}>
             Login
           </Button>
-          <Button mode="outlined" onPress={() => console.log('Pressed')}>
+          <Button mode="outlined" onPress={() => fetchData()}>
             Register
           </Button>
         </View>

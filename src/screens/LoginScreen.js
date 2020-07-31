@@ -1,8 +1,33 @@
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
+import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import URL from '../api/URL';
 
 const LoginScreen = ({navigation, route}) => {
+  // tạo state cho function
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+
+  const fetchData = async () => {
+    try {
+      let data = await axios.post('http://192.168.30.114:3000/signin', {
+        email: email,
+        password: pass,
+      });
+      if (data.data.token) {
+        await AsyncStorage.setItem('token', data.data.token);
+        navigation.navigate('HomeScreen');
+      } else {
+        alert('Sai email hoac mat khau');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View
@@ -27,15 +52,16 @@ const LoginScreen = ({navigation, route}) => {
           style={{width: '100%', height: 50}}
           label="Email"
           mode="outlined"
-          // value={text}
-          // onChangeText={text => setText(text)}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
         <TextInput
           style={{width: '100%', marginTop: 10}}
           label="PassWord"
           mode="outlined"
-          // value={text}
-          // onChangeText={text => setText(text)}
+          secureTextEntry={true}
+          value={pass}
+          onChangeText={(text) => setPass(text)}
         />
         <View
           style={{
@@ -44,9 +70,7 @@ const LoginScreen = ({navigation, route}) => {
             justifyContent: 'center',
             marginTop: 20,
           }}>
-          <Button
-            mode="outlined"
-            onPress={() => navigation.navigate('HomeScreen')}>
+          <Button mode="outlined" onPress={() => fetchData()}>
             Login
           </Button>
           <Button
