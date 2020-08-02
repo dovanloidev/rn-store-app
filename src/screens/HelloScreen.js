@@ -1,43 +1,41 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Animated, StyleSheet, Button} from 'react-native';
+import {View, Text, Animated, StyleSheet, Dimensions} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const HelloScreen = () => {
-  const [value, setValue] = useState(new Animated.Value(10));
-  const [value1, setValue1] = useState(new Animated.Value(0));
+import {CHILEAN_FIRE, KENYAN_COPPER} from '../components/Colors';
+
+const HEIGHT = Dimensions.get('window').height;
+
+const HelloScreen = ({navigation}) => {
+  const [marginTop, setMarginTop] = useState(new Animated.Value(HEIGHT / 2));
 
   useEffect(() => {
-    Animated.timing(value, {
-      toValue: 250,
-      duration: 2000,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(value1, {
-      toValue: 1,
-      duration: 2000,
-    }).start();
+    Animated.sequence([
+      Animated.timing(marginTop, {
+        toValue: 0,
+        useNativeDriver: false,
+        duration: 2000,
+      }),
+    ]).start(() => {
+      // navigation.navigate('LoadingScreen');
+    });
   });
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: value,
-          opacity: value1,
-        }}>
-        <Text style={{fontSize: 30, color: 'white', fontFamily: 'Roboto-Bold'}}>
-          Hello Screen
-        </Text>
-      </Animated.View>
+      <Ionicons name="logo-apple-appstore" size={100} color={KENYAN_COPPER} />
+      <Animated.Text style={{marginTop: marginTop, fontSize: 30}}>
+        Welcome to app store
+      </Animated.Text>
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'orange',
+    backgroundColor: CHILEAN_FIRE,
   },
 });
 export default HelloScreen;

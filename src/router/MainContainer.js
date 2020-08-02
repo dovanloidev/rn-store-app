@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import AsyncStorage from '@react-native-community/async-storage';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 // import my library
 import {
@@ -12,62 +13,89 @@ import {
   LoginScreen,
   LoadingScreen,
   AddProduct,
+  ProfileScreen,
+  ProductDetailScreen,
 } from './Screens';
+import {CHILEAN_FIRE, KENYAN_COPPER} from '../components/Colors';
 
 function NavigationRoot() {
-  const FlashStack = createStackNavigator();
-  const FlashNavigation = () => (
-    <FlashStack.Navigator screenOptions={{headerShown: false}}>
-      <FlashStack.Screen name="HelloScreen" component={HelloScreen} />
-    </FlashStack.Navigator>
+  const [changeScreen, setChangeScreen] = useState(true);
+
+  useEffect(() => {
+    setInterval(() => {
+      setChangeScreen(false);
+    }, 2200);
+  });
+
+  const SplashStack = createStackNavigator();
+  const SplashNavigation = () => (
+    <SplashStack.Navigator screenOptions={{headerShown: false}}>
+      <SplashStack.Screen name="HelloScreen" component={HelloScreen} />
+    </SplashStack.Navigator>
+  );
+
+  const Tab = createBottomTabNavigator();
+  const TabNavigation = () => (
+    <Tab.Navigator
+      initialRouteName="HomeScreen"
+      tabBarOptions={{
+        activeTintColor: CHILEAN_FIRE,
+        inactiveTintColor: '#262626',
+      }}>
+      <Tab.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({color}) => (
+            <MaterialIcons name="home" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AddProduct"
+        component={AddProduct}
+        options={{
+          tabBarLabel: 'Add',
+          tabBarIcon: ({color}) => (
+            <MaterialIcons name="add-circle-outline" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({color}) => (
+            <AntDesign name="user" size={26} color={color} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 
   const MainStack = createStackNavigator();
   const MainNavigation = () => (
     <MainStack.Navigator
       screenOptions={{headerShown: false}}
-      initialRouteName={
-        login === null
-          ? 'LoadingScreen'
-          : login === true
-          ? 'HomeScreen'
-          : 'LoginScreen'
-      }>
+      initialRouteName="LoadingScreen">
       <MainStack.Screen name="LoadingScreen" component={LoadingScreen} />
       <MainStack.Screen name="HomeScreen" component={HomeScreen} />
       <MainStack.Screen name="RegisterScreen" component={RegisterScreen} />
       <MainStack.Screen name="LoginScreen" component={LoginScreen} />
       <MainStack.Screen name="AddProduct" component={AddProduct} />
+      <MainStack.Screen name="TabNavigation" component={TabNavigation} />
+      <MainStack.Screen
+        name="ProductDetailScreen"
+        component={ProductDetailScreen}
+      />
     </MainStack.Navigator>
   );
 
-  // const [changeScreen, setChangeScreen] = useState(true);
-  const [login, setLogin] = useState(null);
-
-  useEffect(() => {
-    (async function () {
-      try {
-        const userId = await AsyncStorage.getItem('token');
-        userId ? setLogin(true) : setLogin(false);
-        console.log('USERID', userId);
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }, []);
-
-  // useEffect(() => {
-  //   {
-  //     setTimeout(() => {
-  //       setChangeScreen(false);
-  //     }, 2000);
-  //   }
-  // }, []);
-
   return (
     <NavigationContainer>
-      {/* {changeScreen ? <FlashNavigation /> : <MainNavigation />} */}
-      <MainNavigation />
+      {changeScreen ? <SplashNavigation /> : <MainNavigation />}
     </NavigationContainer>
   );
 }
