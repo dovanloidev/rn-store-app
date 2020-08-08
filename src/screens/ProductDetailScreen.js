@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Alert} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
@@ -7,23 +7,36 @@ import axios from 'axios';
 import HeaderComponent from '../components/HeaderComponent';
 import formatNumberComponent from '../components/formatNumberComponent';
 import DevicesComponent from '../components/DevicesComponent';
-import {BASE_URL} from '../api/URL';
+import {BASE_URL, BASE_URL_TEST} from '../api/URL';
 
 const ProductDetailScreen = ({navigation, route}) => {
   const [product, setProduct] = useState(route.params.item);
 
-  const onDeleteItem = async (id) => {
-    try {
-      const data = await axios.delete(`${BASE_URL}/api/deleteItem/${id}`);
+  const onDeleteItem = (id) => {
+    Alert.alert('Remind', 'Are you sure delete item?', [
+      {
+        text: 'Yes',
+        onPress: async () => {
+          try {
+            const data = await axios.delete(`${BASE_URL}/api/deleteItem/${id}`);
 
-      if (data) navigation.goBack();
-    } catch (error) {
-      console.log(error);
-    }
+            if (data) navigation.goBack();
+          } catch (error) {
+            console.log(error);
+          }
+        },
+      },
+      {
+        text: 'No',
+        onPress: () => {
+          navigation.navigate('ProductDetailScreen');
+        },
+      },
+    ]);
   };
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
       <HeaderComponent
         title="Thông tin chi tiết"
         back
@@ -32,9 +45,13 @@ const ProductDetailScreen = ({navigation, route}) => {
 
       <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Image
-          style={{height: 200, width: '100%'}}
-          source={require('../assets/-iphone-11-thumbvideo.jpg')}
-          resizeMode="cover"
+          style={{height: 300, width: '100%'}}
+          source={
+            product.image
+              ? {uri: `${BASE_URL_TEST}/${product.image}`}
+              : require('../assets/no-image-found.png')
+          }
+          resizeMode="contain"
         />
         <View style={{marginTop: 20, alignItems: 'center'}}>
           <Text style={{fontSize: 20}}>{product.name}</Text>

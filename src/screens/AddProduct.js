@@ -8,6 +8,8 @@ import {
   Keyboard,
   ScrollView,
   Dimensions,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import {Button} from 'react-native-paper';
 import axios from 'axios';
@@ -18,8 +20,11 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import HeaderComponent from '../components/HeaderComponent';
 import {BASE_URL} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, INPUT} from '../components/Colors';
+import pick from '../api/picker';
+import uploadFile from '../api/upload';
 
 const HEIGHT = Dimensions.get('window').height;
+const WIDTH = Dimensions.get('window').width;
 
 const AddProduct = ({navigation, route}) => {
   const [name, setName] = useState('');
@@ -28,6 +33,7 @@ const AddProduct = ({navigation, route}) => {
   const [category, setCategory] = useState('Iphone 5');
   const [isEdit, setIsEdit] = useState(false);
   const [product, setProduct] = useState({});
+  const [image, setImage] = useState({avatarSource: null, data: null});
 
   useEffect(() => {
     if (route.params) {
@@ -37,12 +43,13 @@ const AddProduct = ({navigation, route}) => {
   }, []);
 
   const onAddItem = () => {
-    fetchData();
+    upload();
 
     setName('');
     setPrice('');
     setNote('');
     setCategory('Iphone 5');
+    setImage({avatarSource: null});
   };
 
   const onEditItem = () => {
@@ -52,6 +59,26 @@ const AddProduct = ({navigation, route}) => {
     setPrice('');
     setNote('');
     setCategory('Iphone 5');
+  };
+
+  const show = () => {
+    pick((source, data) => setImage({avatarSource: source, data: data}));
+  };
+
+  const upload = () => {
+    uploadFile([
+      {name: 'avatar', filename: 'avatar.png', data: image.data},
+      {name: 'name', data: name},
+      {name: 'price', data: price},
+      {name: 'note', data: note},
+      {name: 'category', data: category},
+    ])
+      .then((res) => {
+        if (res) {
+          navigation.goBack();
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const getProductById = async (id) => {
@@ -86,12 +113,19 @@ const AddProduct = ({navigation, route}) => {
 
   const fetchData = async () => {
     try {
-      let data = await axios.post(`${BASE_URL}/api/addItem`, {
-        name,
-        price,
-        note,
-        category,
-      });
+      let data = await axios.post(
+        `${BASE_URL}/api/addItem`,
+        {
+          image,
+          name,
+          price,
+          note,
+          category,
+        },
+        {
+          headers: {'content-type': 'multipart/form-data'},
+        },
+      );
       if (data) {
         navigation.goBack();
       }
@@ -184,6 +218,28 @@ const AddProduct = ({navigation, route}) => {
                 <Picker.Item label="Iphone 5" value="Iphone 5" />
                 <Picker.Item label="Iphone 11" value="Iphone 11" />
               </Picker>
+            </View>
+
+            <View style={{alignItems: 'center'}}>
+              {!image.avatarSource ? null : (
+                <Image
+                  source={image.avatarSource}
+                  style={{height: 200, width: 200}}
+                  resizeMode="contain"
+                />
+              )}
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: KENYAN_COPPER,
+                  width: WIDTH - 20,
+                  padding: 5,
+                  borderRadius: 10,
+                  marginTop: 20,
+                }}
+                onPress={() => show()}>
+                <Text style={{textAlign: 'center'}}>Choose Image </Text>
+              </TouchableOpacity>
             </View>
 
             {isEdit ? (

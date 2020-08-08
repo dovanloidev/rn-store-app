@@ -47,7 +47,7 @@ const HomeScreen = ({navigation, route}) => {
 
   return (
     <View style={{flex: 1}}>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
         <View style={{flex: 4}}>
           <Image
             style={{height: 200, width: '100%'}}

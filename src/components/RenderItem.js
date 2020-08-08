@@ -3,6 +3,7 @@ import {View, Text, Image, TouchableOpacity} from 'react-native';
 
 import {CHILEAN_FIRE, COIN} from '../components/Colors';
 import formatNumberComponent from '../components/formatNumberComponent';
+import {BASE_URL_TEST, BASE_URL} from '../api/URL';
 
 const RenderItem = ({item, navigation}) => {
   return (
@@ -16,9 +17,13 @@ const RenderItem = ({item, navigation}) => {
       onPress={() => navigation.navigate('ProductDetailScreen', {item})}>
       <View style={{flex: 1, padding: 10}}>
         <Image
-          source={require('../assets/-iphone-11-thumbvideo.jpg')}
+          source={
+            item.image
+              ? {uri: `${BASE_URL_TEST}/${item.image}`}
+              : require('../assets/no-image-found.png')
+          }
           style={{width: 200, height: 200}}
-          resizeMode="contain"
+          resizeMode="center"
         />
         <Text style={{fontSize: 18, textAlign: 'center'}}>{item?.name}</Text>
       </View>

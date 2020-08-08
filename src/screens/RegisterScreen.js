@@ -11,9 +11,9 @@ import {Button} from 'react-native-paper';
 import axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RNFetchBlob from 'react-native-fetch-blob';
 
-import {BASE_URL} from '../api/URL';
+import {BASE_URL, BASE_URL_TEST} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, INPUT} from '../components/Colors';
 
 const RegisterScreen = ({navigation, route}) => {
@@ -23,15 +23,40 @@ const RegisterScreen = ({navigation, route}) => {
 
   const fetchData = async () => {
     try {
-      let data = await axios.post(`${BASE_URL}/signup`, {
-        email: email,
-        password: pass,
-      });
-      await AsyncStorage.setItem('token', data.data.token);
-      navigation.navigate('TabNavigation');
+      let data = await RNFetchBlob.fetch(
+        'POST',
+        `${BASE_URL_TEST}/signup`,
+        {
+          Authorization: 'Bearer access-token',
+          otherHeader: 'foo',
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          {name: 'email', data: email},
+          {name: 'password', data: pass},
+        ],
+      );
+      let parseData = JSON.parse(data.data);
+      if (parseData.token) {
+        await AsyncStorage.setItem('token', parseData.token);
+        navigation.navigate('TabNavigation');
+      } else {
+        alert('Sai email hoac mat khau');
+      }
     } catch (error) {
       console.log(error);
     }
+
+    // try {
+    //   let data = await axios.post(`${BASE_URL}/signup`, {
+    //     email: email,
+    //     password: pass,
+    //   });
+    //   await AsyncStorage.setItem('token', data.data.token);
+    //   navigation.navigate('TabNavigation');
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (
