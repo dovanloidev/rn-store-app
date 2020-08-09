@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'react-native-fetch-blob';
 
-import {BASE_URL, BASE_URL_TEST} from '../api/URL';
+import {BASE_URL} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, INPUT} from '../components/Colors';
 
 const RegisterScreen = ({navigation, route}) => {
@@ -25,7 +25,7 @@ const RegisterScreen = ({navigation, route}) => {
     try {
       let data = await RNFetchBlob.fetch(
         'POST',
-        `${BASE_URL_TEST}/signup`,
+        `${BASE_URL}/signup`,
         {
           Authorization: 'Bearer access-token',
           otherHeader: 'foo',

@@ -16,6 +16,7 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Picker} from '@react-native-community/picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 import HeaderComponent from '../components/HeaderComponent';
 import {BASE_URL} from '../api/URL';
@@ -42,8 +43,8 @@ const AddProduct = ({navigation, route}) => {
     }
   }, []);
 
-  const onAddItem = () => {
-    upload();
+  const onAddItem = async () => {
+    await upload();
 
     setName('');
     setPrice('');
@@ -52,13 +53,14 @@ const AddProduct = ({navigation, route}) => {
     setImage({avatarSource: null});
   };
 
-  const onEditItem = () => {
-    updateProduct(product._id);
+  const onEditItem = async () => {
+    await updateProduct(product._id);
 
     setName('');
     setPrice('');
     setNote('');
     setCategory('Iphone 5');
+    setImage({avatarSource: null});
   };
 
   const show = () => {
@@ -84,8 +86,10 @@ const AddProduct = ({navigation, route}) => {
   const getProductById = async (id) => {
     try {
       let data = await axios.get(`${BASE_URL}/api/getItemById/${id}`);
+      let imageEdit = await `${BASE_URL}/${data.data.image.split('\\')[1]}`;
 
       setProduct(data.data);
+      setImage({avatarSource: {uri: imageEdit}});
       setName(data.data.name);
       setPrice(data.data.price);
       setNote(data.data.note);
@@ -97,13 +101,26 @@ const AddProduct = ({navigation, route}) => {
 
   const updateProduct = async (id) => {
     try {
-      let data = await axios.patch(`${BASE_URL}/api/updateItem/${id}`, {
-        name,
-        price,
-        note,
-        category,
-      });
-      if (data) {
+      let data = await RNFetchBlob.fetch(
+        'POST',
+        `${BASE_URL}/api/updateItem/${id}`,
+        {
+          Authorization: 'Bearer access-token',
+          otherHeader: 'foo',
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          image.data
+            ? {name: 'avatar', filename: 'avatar.png', data: image.data}
+            : {name: 'avatar', data: product.image},
+          {name: 'name', data: name},
+          {name: 'price', data: price},
+          {name: 'note', data: note},
+          {name: 'category', data: category},
+        ],
+      );
+      let parseJson = JSON.parse(data.data);
+      if (parseJson.result) {
         navigation.navigate('TabNavigation', {update: true});
       }
     } catch (error) {

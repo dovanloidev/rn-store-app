@@ -4,7 +4,7 @@ import {BASE_URL, BASE_URL_TEST} from './URL';
 let upload = (data) => {
   return RNFetchBlob.fetch(
     'POST',
-    `${BASE_URL_TEST}/api/upload`,
+    `${BASE_URL}/api/upload`,
     {
       Authorization: 'Bearer access-token',
       otherHeader: 'foo',

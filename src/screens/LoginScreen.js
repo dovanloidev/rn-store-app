@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
 
-import {BASE_URL, BASE_URL_TEST} from '../api/URL';
+import {BASE_URL} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, INPUT} from '../components/Colors';
 import DevicesComponent from '../components/DevicesComponent';
 

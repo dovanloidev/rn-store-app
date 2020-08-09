@@ -3,7 +3,7 @@ import {View, Text, Image, TouchableOpacity} from 'react-native';
 
 import {CHILEAN_FIRE, COIN} from '../components/Colors';
 import formatNumberComponent from '../components/formatNumberComponent';
-import {BASE_URL_TEST, BASE_URL} from '../api/URL';
+import {BASE_URL} from '../api/URL';
 
 const RenderItem = ({item, navigation}) => {
   return (
@@ -19,7 +19,11 @@ const RenderItem = ({item, navigation}) => {
         <Image
           source={
             item.image
-              ? {uri: `${BASE_URL_TEST}/${item.image}`}
+              ? {
+                  uri: item.image.split('\\')[1]
+                    ? `${BASE_URL}/${item.image.split('\\')[1]}`
+                    : `${BASE_URL}/${item.image.split('/')[1]}`,
+                }
               : require('../assets/no-image-found.png')
           }
           style={{width: 200, height: 200}}

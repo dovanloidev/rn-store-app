@@ -7,7 +7,7 @@ import axios from 'axios';
 import HeaderComponent from '../components/HeaderComponent';
 import formatNumberComponent from '../components/formatNumberComponent';
 import DevicesComponent from '../components/DevicesComponent';
-import {BASE_URL, BASE_URL_TEST} from '../api/URL';
+import {BASE_URL} from '../api/URL';
 
 const ProductDetailScreen = ({navigation, route}) => {
   const [product, setProduct] = useState(route.params.item);
@@ -48,7 +48,7 @@ const ProductDetailScreen = ({navigation, route}) => {
           style={{height: 300, width: '100%'}}
           source={
             product.image
-              ? {uri: `${BASE_URL_TEST}/${product.image}`}
+              ? {uri: `${BASE_URL}/${product.image.split('\\')[1]}`}
               : require('../assets/no-image-found.png')
           }
           resizeMode="contain"
