@@ -3,14 +3,49 @@ import {View, Text, Image, TouchableOpacity, Alert} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
+import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 import HeaderComponent from '../components/HeaderComponent';
 import formatNumberComponent from '../components/formatNumberComponent';
 import DevicesComponent from '../components/DevicesComponent';
 import {BASE_URL} from '../api/URL';
+import {KENYAN_COPPER, CHILEAN_FIRE} from '../components/Colors';
+import {AddCartAction} from '../redux/action/cart';
 
 const ProductDetailScreen = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const cartCurrent = useSelector((state) => state.cart);
+  const userCurrent = useSelector((state) => state.user);
   const [product, setProduct] = useState(route.params.item);
+
+  const fetchToCart = async (item) => {
+    try {
+      let data = await RNFetchBlob.fetch(
+        'POST',
+        `${BASE_URL}/cart/AddToCart`,
+        {
+          Authorization: 'Bearer access-token',
+          otherHeader: 'foo',
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          {name: 'userId', data: userCurrent.user._id},
+          {name: 'productId', data: item._id},
+        ],
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onAddCart = async () => {
+    fetchToCart(product);
+    await AsyncStorage.setItem('cart', JSON.stringify(product));
+    dispatch(AddCartAction(product, cartCurrent));
+    alert('Them than cong');
+  };
 
   const onDeleteItem = (id) => {
     Alert.alert('Remind', 'Are you sure delete item?', [
@@ -68,6 +103,22 @@ const ProductDetailScreen = ({navigation, route}) => {
         <Text style={{fontSize: 16, marginTop: 5, textAlign: 'center'}}>
           {product.note}
         </Text>
+      </View>
+
+      <View style={{alignItems: 'center', marginTop: 10}}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: CHILEAN_FIRE,
+            padding: 10,
+            borderRadius: 5,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={() => onAddCart()}>
+          <AntDesign name="shoppingcart" size={16} />
+          <Text style={{fontSize: 16, marginLeft: 5}}>Thêm giỏ hàng</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={{flexDirection: 'row', position: 'absolute', bottom: 0}}>

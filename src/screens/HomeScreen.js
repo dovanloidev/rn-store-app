@@ -8,21 +8,29 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {useIsFocused} from '@react-navigation/native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {useDispatch, useSelector} from 'react-redux';
 
 import RenderItem from '../components/RenderItem';
 import DevicesComponent from '../components/DevicesComponent';
 import {BASE_URL} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, COIN} from '../components/Colors';
+import {AddCartLocalAction} from '../redux/action/cart';
+import {loginAction} from '../redux/action/user';
 
 const HomeScreen = ({navigation, route}) => {
+  const userCurrent = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const [listProduct5, setListProduct5] = useState([]);
   const [listProduct11, setListProduct11] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isUpdate, setIsUpdate] = useState(route?.params?.update);
+  const [isCheck, setIsCheck] = useState(false);
 
   useEffect(() => {
     fetchData();
+    // getData();
   }, [isFocused, isUpdate]);
 
   const fetchData = async () => {
@@ -39,11 +47,32 @@ const HomeScreen = ({navigation, route}) => {
         setListProduct5(dataIp5);
         setListProduct11(dataIp11);
         setLoading(false);
+        const user = await AsyncStorage.getItem('user');
+        const cart = await AsyncStorage.getItem('cart');
+        dispatch(loginAction(JSON.parse(user)));
+        dispatch(AddCartLocalAction(JSON.parse(cart)));
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const getData = async () => {};
+
+  // const fetchDataCart = async () => {
+  //   const userId = userCurrent.user._id;
+  //   try {
+  //     const data = await axios.get(`${BASE_URL}/cart/getAllCart/${userId}`);
+
+  //     if (data.data) {
+  //       await AsyncStorage.setItem('cart', JSON.stringify(data.data));
+  //       dispatch(AddCartLocalAction(data.data));
+  //     }
+  //     setIsCheck(true);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <View style={{flex: 1}}>

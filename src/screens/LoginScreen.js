@@ -6,6 +6,7 @@ import {
   Keyboard,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {Button} from 'react-native-paper';
 import axios from 'axios';
@@ -13,17 +14,24 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {BASE_URL} from '../api/URL';
 import {CHILEAN_FIRE, KENYAN_COPPER, INPUT} from '../components/Colors';
 import DevicesComponent from '../components/DevicesComponent';
+import {loginAction} from '../redux/action/user';
+import {AddCartLocalAction} from '../redux/action/cart';
 
 const LoginScreen = ({navigation, route}) => {
+  const userCurrent = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   // tạo state cho function
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       let data = await RNFetchBlob.fetch(
         'POST',
@@ -41,33 +49,47 @@ const LoginScreen = ({navigation, route}) => {
       let parseData = JSON.parse(data.data);
       if (parseData.token) {
         await AsyncStorage.setItem('token', parseData.token);
+        fetchDataCart(parseData.user);
+        setIsLoading(false);
         navigation.navigate('TabNavigation');
       } else {
         alert('Sai email hoac mat khau');
+        setIsLoading(false);
       }
     } catch (error) {
       console.log(error);
     }
+  };
 
-    // try {
-    //   let data = await axios.post(`${BASE_URL_TEST}/signin`, {
-    //     email: email,
-    //     password: pass,
-    //   });
-    //   if (data.data.token) {
-    //     await AsyncStorage.setItem('token', data.data.token);
-    //     navigation.navigate('TabNavigation');
-    //   } else {
-    //     alert('Sai email hoac mat khau');
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  const fetchDataCart = async (user) => {
+    const userId = user._id;
+    try {
+      const data = await axios.get(`${BASE_URL}/cart/getAllCart/${userId}`);
+      if (data.data) {
+        await AsyncStorage.setItem('cart', JSON.stringify(data.data));
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+        dispatch(AddCartLocalAction(data.data));
+        dispatch(loginAction(user));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{flex: 1, backgroundColor: CHILEAN_FIRE}}>
+        {isLoading ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: '26%',
+              left: '45%',
+            }}>
+            <ActivityIndicator size="large" color="black" />
+          </View>
+        ) : null}
+
         <View style={{flex: 3, justifyContent: 'center', alignItems: 'center'}}>
           <Ionicons
             name="logo-apple-appstore"

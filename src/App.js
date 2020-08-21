@@ -1,13 +1,20 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import React from 'react';
+import {Provider} from 'react-redux';
 
 // import my library
 import NavigationRoot from './router/MainContainer';
+import configStore from './store';
+
+console.disableYellowBox = true;
+
+const store = configStore();
 
 function App() {
-  return <NavigationRoot />;
+  return (
+    <Provider store={store}>
+      <NavigationRoot />
+    </Provider>
+  );
 }
 
 export default App;

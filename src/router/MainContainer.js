@@ -4,6 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useDispatch} from 'react-redux';
 
 // import my library
 import {
@@ -15,10 +16,12 @@ import {
   AddProduct,
   ProfileScreen,
   ProductDetailScreen,
+  CartScreen,
 } from './Screens';
 import {CHILEAN_FIRE, KENYAN_COPPER} from '../components/Colors';
 
 function NavigationRoot() {
+  // const dispatch = useDispatch();
   const [changeScreen, setChangeScreen] = useState(true);
 
   useEffect(() => {
@@ -37,7 +40,6 @@ function NavigationRoot() {
   const Tab = createBottomTabNavigator();
   const TabNavigation = () => (
     <Tab.Navigator
-      initialRouteName="HomeScreen"
       tabBarOptions={{
         activeTintColor: CHILEAN_FIRE,
         inactiveTintColor: '#262626',
@@ -59,6 +61,16 @@ function NavigationRoot() {
           tabBarLabel: 'Add',
           tabBarIcon: ({color}) => (
             <MaterialIcons name="add-circle-outline" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          tabBarLabel: 'Cart',
+          tabBarIcon: ({color}) => (
+            <AntDesign name="shoppingcart" size={26} color={color} />
           ),
         }}
       />

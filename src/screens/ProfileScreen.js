@@ -1,15 +1,24 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, TouchableOpacity, Alert} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSelector, useDispatch} from 'react-redux';
 
 import HeaderComponent from '../components/HeaderComponent';
 import {KENYAN_COPPER, CHILEAN_FIRE} from '../components/Colors';
+import {BASE_URL} from '../api/URL';
+import {resetCartAction} from '../redux/action/cart';
+import {logoutAction} from '../redux/action/user';
 
 const ProfileScreen = ({navigation}) => {
+  const cartCurrent = useSelector((state) => state.cart);
+  const userCurrent = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
   const renderInfo = (icon, name, changeIcon) => {
     return (
       <View
@@ -36,14 +45,23 @@ const ProfileScreen = ({navigation}) => {
     );
   };
 
+  const onAddToCart = async () => {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('cart');
+    await AsyncStorage.removeItem('user');
+    // await cartCurrent.cart.map((item) => fetchToCart(item));
+    dispatch(resetCartAction());
+    dispatch(logoutAction());
+    navigation.navigate('LoginScreen');
+  };
+
   const onLogout = () => {
     Alert.alert('Remind', 'Are you sure logout?', [
       {
         text: 'Yes',
         onPress: async () => {
           try {
-            await AsyncStorage.removeItem('token');
-            navigation.navigate('LoginScreen');
+            onAddToCart();
           } catch (error) {
             console.log(error);
           }
